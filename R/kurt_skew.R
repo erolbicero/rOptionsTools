@@ -45,7 +45,7 @@ kurt_skew <- function(m, k, u, ic, ip, currcalls, currputs, er, V){
 
 #' @keywords internal
 #' @noRd
-calc_moments_mfiv_bkm <- function(otmPrice,moneyness){
+calc_moments_mfiv_bkm <- function(otmPrice,moneyness,er,mat){
   Q <- otmPrice
   ki <- moneyness
   otmcalls <- moneyness >= 1
