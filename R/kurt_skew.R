@@ -25,7 +25,7 @@ kurt_skew <- function(...){
 }
 
 #' @export
-kurt_skew.data.table <- function(options_surface, zero_rate
+kurt_skew.data.table <- function(options_surface, zero_rate, mat
                                  , m = quote((nrow(options_surface)-1)/k)
                                  , k = 2 #typical
                                  , u = quote((1 + k)^(1 / m))
@@ -37,7 +37,7 @@ kurt_skew.data.table <- function(options_surface, zero_rate
                                  , V = quote(calc_moments_mfiv_bkm(otmPrice=options_surface$mean_price,moneyness=options_surface$k,er,mat) * mat)
                                  ){
   functionArgs <- as.list(match.call())[-1] #first element is empty
-  functionArgs <- lapply(functionArgs,eval)
+  functionArgs <- lapply(functionArgs,eval,envir=parent.frame(1L))
   defaultArgs <- formals()
   defaultArgs <- defaultArgs[!(names(defaultArgs) %in% names(functionArgs))]
   defaultArgs <- c(functionArgs, defaultArgs)
@@ -51,6 +51,7 @@ kurt_skew.data.table <- function(options_surface, zero_rate
 
   defaultArgs[["options_surface"]] <- NULL
   defaultArgs[["zero_rate"]] <- NULL
+  defaultArgs[["mat"]] <- NULL
 
   result <- do.call(kurt_skew.default,defaultArgs)
 
