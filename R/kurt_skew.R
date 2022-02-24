@@ -37,9 +37,11 @@ kurt_skew.data.table <- function(options_surface, zero_rate
                                  , V = quote(calc_moments_mfiv_bkm(otmPrice=options_surface$mean_price,moneyness=options_surface$k,er,mat) * mat)
                                  ){
   functionArgs <- as.list(match.call())[-1] #first element is empty
+  functionArgs <- lapply(functionArgs,eval)
   defaultArgs <- formals()
   defaultArgs <- defaultArgs[!(names(defaultArgs) %in% names(functionArgs))]
-  defaultArgs <- c(list(options_surface=options_surface, zero_rate=zero_rate), defaultArgs)
+  defaultArgs <- c(functionArgs, defaultArgs)
+  rm(functionArgs)
 
   for(i in names(defaultArgs)){
     if(class(defaultArgs[[i]])[1]=="call"){
