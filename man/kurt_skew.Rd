@@ -4,7 +4,7 @@
 \alias{kurt_skew}
 \title{Calculate Model Free Implied Skew & Kurtosis}
 \usage{
-kurt_skew(m, k, u, ic, ip, currcalls, currputs, er, V)
+kurt_skew(...)
 }
 \arguments{
 \item{m}{scalar number of grid points}

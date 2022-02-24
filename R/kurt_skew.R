@@ -20,7 +20,44 @@
 #' @references Code based on [updated 2021-06-27] Model-Free Implied Measures from Options Data (Data and Code)" found at https://www.vilkov.net/codedata.html
 #'
 #' @export
-kurt_skew <- function(m, k, u, ic, ip, currcalls, currputs, er, V){
+kurt_skew <- function(...){
+  UseMethod("kurt_skew")
+}
+
+#' @export
+kurt_skew.data.table <- function(options_surface, zero_rate
+                                 , m = quote((nrow(options_surface)-1)/k)
+                                 , k = 2 #typical
+                                 , u = quote((1 + k)^(1 / m))
+                                 , ic = quote(seq(-m, m)[options_surface$k>=1])
+                                 , ip = quote(seq(-m, m)[options_surface$k <1])
+                                 , currcalls = quote(options_surface$mean_price[options_surface$k>=1])
+                                 , currputs = quote(options_surface$mean_price[options_surface$k<1])
+                                 , er = quote(exp(mat * zero_rate))
+                                 , V = quote(calc_moments_mfiv_bkm(otmPrice=options_surface$mean_price,moneyness=options_surface$k,er,mat) * mat)
+                                 ){
+  functionArgs <- as.list(match.call())[-1] #first element is empty
+  defaultArgs <- formals()
+  defaultArgs <- defaultArgs[!(names(defaultArgs) %in% names(functionArgs))]
+  defaultArgs <- c(list(options_surface=options_surface, zero_rate=zero_rate), defaultArgs)
+
+  for(i in names(defaultArgs)){
+    if(class(defaultArgs[[i]])[1]=="call"){
+      defaultArgs[[i]] <- eval(eval(defaultArgs[[i]]),envir = list2env(defaultArgs))
+    }
+  }
+
+  defaultArgs[["options_surface"]] <- NULL
+  defaultArgs[["zero_rate"]] <- NULL
+
+  result <- do.call(kurt_skew.default,defaultArgs)
+
+  return(result)
+
+}
+
+#' @export
+kurt_skew.default <- function(m, k, u, ic, ip, currcalls, currputs, er, V){
 
   a <- 3 * (u - 1) * log(1 + k) / m
   b1 <- sum(ic * (2 - (log(1 + k) / m) * ic) * currcalls / u^ic)
@@ -43,8 +80,8 @@ kurt_skew <- function(m, k, u, ic, ip, currcalls, currputs, er, V){
   return(result)
 }
 
-#' @keywords internal
 #' @noRd
+#' @keywords internal
 calc_moments_mfiv_bkm <- function(otmPrice,moneyness,er,mat){
   Q <- otmPrice
   ki <- moneyness
